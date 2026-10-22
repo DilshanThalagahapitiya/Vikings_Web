@@ -1,0 +1,8 @@
+﻿code,type,collar,color,gsm,in_stock
+OB220,Oversize,No collar,Black,220,7
+OB280,Oversize,No collar,Black,280,2
+OW220,Oversize,No collar,White,220,7
+OW280,Oversize,No collar,White,280,5
+RB220,Regular,No collar,Black,220,7
+RCB280,Regular,Collar,Black,280,0
+RW220,Regular,No collar,White,220,8

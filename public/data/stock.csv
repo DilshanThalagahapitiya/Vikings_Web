@@ -1,0 +1,21 @@
+﻿code,type,collar,color,gsm,size,in_stock,avg_cost,bought,sold,adjusted,value
+RCB280,Regular,Collar,Black,280,Medium,0,1150,1,1,0,0
+RB220,Regular,No collar,Black,220,Small,1,750,1,0,0,750
+RB220,Regular,No collar,Black,220,Medium,2,750,2,0,0,1500
+RB220,Regular,No collar,Black,220,Large,2,750,2,0,0,1500
+RB220,Regular,No collar,Black,220,XL,2,750,2,0,0,1500
+RW220,Regular,No collar,White,220,Small,1,700,1,0,0,700
+RW220,Regular,No collar,White,220,Medium,2,700,2,0,0,1400
+RW220,Regular,No collar,White,220,Large,3,700,3,0,0,2100
+RW220,Regular,No collar,White,220,XL,2,700,2,0,0,1400
+OB220,Oversize,No collar,Black,220,Small,1,850,1,0,0,850
+OB220,Oversize,No collar,Black,220,Medium,2,850,3,1,0,1700
+OB220,Oversize,No collar,Black,220,Large,2,850,2,0,0,1700
+OB220,Oversize,No collar,Black,220,XL,2,850,2,0,0,1700
+OB280,Oversize,No collar,Black,280,Medium,2,950,2,0,0,1900
+OW220,Oversize,No collar,White,220,Small,1,800,1,0,0,800
+OW220,Oversize,No collar,White,220,Medium,1,800,1,0,0,800
+OW220,Oversize,No collar,White,220,Large,3,800,3,0,0,2400
+OW220,Oversize,No collar,White,220,XL,2,800,2,0,0,1600
+OW280,Oversize,No collar,White,280,Medium,1,900,1,0,0,900
+OW280,Oversize,No collar,White,280,XL,4,900,4,0,0,3600
