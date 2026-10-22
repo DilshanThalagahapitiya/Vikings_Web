@@ -1,8 +1,7 @@
-import { DEFAULT_BLANK_PRICE, FALLBACK_SIZES } from '../config/app';
-import { PLACEMENT_BY_ID } from '../config/placements';
+import { FALLBACK_SIZES } from '../config/app';
+import { sizesAt } from './pricing';
 import type {
   Catalog,
-  Customization,
   Design,
   PlacementId,
   ShirtCode,
@@ -74,29 +73,6 @@ export function sizesForCode(catalog: Catalog, code: ShirtCode): SizeOption[] {
 export const colorByName = (catalog: Catalog, name: string) =>
   catalog.colors.find((c) => c.name.toLowerCase() === name.toLowerCase());
 
-/** Designs that can be printed at the given placement (a price exists for its print size). */
-export function designsForPlacement(designs: Design[], placement: PlacementId): Design[] {
-  const size = PLACEMENT_BY_ID[placement].printSize;
-  return designs.filter((d) => d.prices[size] !== null);
-}
-
-export interface PriceLine {
-  label: string;
-  amount: number;
-}
-
-export function priceBreakdown(catalog: Catalog, c: Customization): PriceLine[] {
-  const code = catalog.codes.find((x) => x.code === c.code);
-  const lines: PriceLine[] = [{ label: `Shirt ${c.code}`, amount: code?.price ?? DEFAULT_BLANK_PRICE }];
-  for (const [placementId, designId] of Object.entries(c.prints) as [PlacementId, string][]) {
-    const design = catalog.designs.find((d) => d.id === designId);
-    const price = design?.prices[PLACEMENT_BY_ID[placementId].printSize];
-    if (design && price != null) {
-      lines.push({ label: `${design.name} – ${PLACEMENT_BY_ID[placementId].label}`, amount: price });
-    }
-  }
-  return lines;
-}
-
-export const unitPrice = (catalog: Catalog, c: Customization) =>
-  priceBreakdown(catalog, c).reduce((sum, l) => sum + l.amount, 0);
+/** Designs offered (priced) in at least one print size allowed at the placement. */
+export const designsForPlacement = (designs: Design[], placement: PlacementId): Design[] =>
+  designs.filter((d) => sizesAt(d, placement).length > 0);

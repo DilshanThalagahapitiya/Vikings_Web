@@ -2,13 +2,13 @@ import { APP_NAME, WHATSAPP_NUMBER } from '../config/app';
 import { PLACEMENT_BY_ID } from '../config/placements';
 import { toCsv } from '../lib/csv';
 import { formatMoney } from '../lib/format';
-import type { CartItem, Catalog, PlacementId } from '../types';
-import { unitPrice } from './catalogSelectors';
+import type { CartItem, Catalog, PlacementId, PrintChoice } from '../types';
+import { unitPrice } from './pricing';
 
 function describePrints(catalog: Catalog, item: CartItem): string {
-  const parts = (Object.entries(item.prints) as [PlacementId, string][]).map(([p, id]) => {
-    const name = catalog.designs.find((d) => d.id === id)?.name ?? id;
-    return `${PLACEMENT_BY_ID[p].label}: ${name}`;
+  const parts = (Object.entries(item.prints) as [PlacementId, PrintChoice][]).map(([p, c]) => {
+    const name = catalog.designs.find((d) => d.id === c.designId)?.name ?? c.designId;
+    return `${PLACEMENT_BY_ID[p].label}: ${name} (${c.size})`;
   });
   return parts.join(', ') || 'No print';
 }

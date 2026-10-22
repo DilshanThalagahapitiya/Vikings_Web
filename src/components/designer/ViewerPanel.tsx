@@ -5,7 +5,7 @@ import { Button } from '../ui/Button';
 import { useDesignerSelection } from '../../hooks/useDesignerSelection';
 import { designImageUrl } from '../../services/designImage';
 import { todayStamp } from '../../lib/download';
-import type { PlacementId } from '../../types';
+import type { PlacementId, PrintChoice } from '../../types';
 import type { ShirtPrint } from '../viewer/ShirtModel';
 
 interface Props {
@@ -26,9 +26,9 @@ export function ViewerPanel({ view, onView }: Props) {
 
   const printList = useMemo(
     () =>
-      (Object.entries(prints) as [PlacementId, string][]).flatMap(([placement, id]): ShirtPrint[] => {
-        const design = catalog.designs.find((d) => d.id === id);
-        return design ? [{ placement, imageUrl: designImageUrl(design) }] : [];
+      (Object.entries(prints) as [PlacementId, PrintChoice][]).flatMap(([placement, c]): ShirtPrint[] => {
+        const design = catalog.designs.find((d) => d.id === c.designId);
+        return design ? [{ placement, size: c.size, imageUrl: designImageUrl(design) }] : [];
       }),
     [catalog.designs, prints],
   );

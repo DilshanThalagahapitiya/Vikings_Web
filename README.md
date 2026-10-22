@@ -25,11 +25,23 @@ The live data is the four CSV files in `public/data/` plus the design images in 
 | File | Columns |
 | --- | --- |
 | `designs.csv` | `id, name, small_price, medium_price, large_price, image_file, image_data` |
-| `codes.csv` | `code, type, collar, color, gsm, in_stock` + optional `price` (blank shirt price) |
+| `codes.csv` | `code, type, collar, color, gsm, in_stock` |
 | `colors.csv` | `name, hex, hex2, status` (`hex2` = optional trim colour, `status` = visible/hidden) |
-| `stock.csv` | `code, size, in_stock, avg_cost` (…extra columns ignored) |
+| `stock.csv` | `code, size, in_stock, avg_cost` (…extra columns ignored) – `avg_cost` is the blank shirt cost |
+| `settings.json` | `margin` (0.3 = 30 %), `packing`, `power`, `roundTo` |
 
-- A design is offered at a position only if it has a price for that position's size: front left → `small_price`, front middle & back middle → `medium_price`, back full → `large_price`.
+- Design columns `small_price / medium_price / large_price` are the **print cost** per size (same file as the POS export). A blank value means that size is not offered.
+- The customer picks a print size per position (front left: Small, front/back middle: S/M/L, back full: M/L) – the 3D print grows with the size.
+
+## Pricing (same as the POS Sell screen)
+
+```
+unit cost = blank shirt avg cost (stock.csv, by code + size) + print costs + packing + power
+price     = unit cost × (1 + margin), rounded up to roundTo
+```
+
+Customers only see the final price (the margin is spread over the shirt/print lines). Margin, packing, power and rounding live in `public/data/settings.json` (defaults match the POS: 30 %, 150, 28, round to 50).
+
 - `image_data` may hold a base64 `data:` URL; if empty, `public/designs/<image_file>` is used.
 - Type `Oversize` → oversize model; `collar` = `Collar` → collar model; anything else → regular.
 

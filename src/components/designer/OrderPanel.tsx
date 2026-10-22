@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { formatMoney } from '../../lib/format';
-import { priceBreakdown, unitPrice } from '../../services/catalogSelectors';
+import { quote } from '../../services/pricing';
 import { useCartStore } from '../../store/cartStore';
 import { useDesignerSelection } from '../../hooks/useDesignerSelection';
 import { Button } from '../ui/Button';
@@ -16,7 +16,7 @@ export function OrderPanel() {
 
   if (!code || !size) return null;
   const custom = { code: code.code, size, prints };
-  const lines = priceBreakdown(catalog, custom);
+  const { lines, total } = quote(catalog, custom);
   const stock = sizes.find((s) => s.size === size)?.inStock ?? 0;
   const qty = Math.min(quantity, Math.max(1, stock));
 
@@ -31,7 +31,7 @@ export function OrderPanel() {
         ))}
         <li className="price-lines__total">
           <span>Per shirt</span>
-          <span>{formatMoney(unitPrice(catalog, custom))}</span>
+          <span>{formatMoney(total)}</span>
         </li>
       </ul>
 
@@ -45,7 +45,7 @@ export function OrderPanel() {
             setTimeout(() => setAdded(false), 2500);
           }}
         >
-          {stock <= 0 ? 'Out of stock' : `Add to cart · ${formatMoney(unitPrice(catalog, custom) * qty)}`}
+          {stock <= 0 ? 'Out of stock' : `Add to cart · ${formatMoney(total * qty)}`}
         </Button>
       </div>
       {added && (

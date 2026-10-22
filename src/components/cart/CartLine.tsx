@@ -1,9 +1,9 @@
 import { PLACEMENT_BY_ID } from '../../config/placements';
 import { formatMoney } from '../../lib/format';
 import { designImageUrl } from '../../services/designImage';
-import { unitPrice } from '../../services/catalogSelectors';
+import { unitPrice } from '../../services/pricing';
 import { useCartStore } from '../../store/cartStore';
-import type { CartItem, Catalog, PlacementId } from '../../types';
+import type { CartItem, Catalog, PlacementId, PrintChoice } from '../../types';
 import { Button } from '../ui/Button';
 import { QuantityInput } from '../ui/QuantityInput';
 
@@ -11,7 +11,7 @@ export function CartLine({ item, catalog }: { item: CartItem; catalog: Catalog }
   const { setQuantity, remove } = useCartStore();
   const code = catalog.codes.find((c) => c.code === item.code);
   const color = catalog.colors.find((c) => c.name.toLowerCase() === code?.color.toLowerCase());
-  const prints = Object.entries(item.prints) as [PlacementId, string][];
+  const prints = Object.entries(item.prints) as [PlacementId, PrintChoice][];
 
   return (
     <li className="cart-line">
@@ -22,13 +22,13 @@ export function CartLine({ item, catalog }: { item: CartItem; catalog: Catalog }
         </strong>
         <div className="cart-line__prints">
           {prints.length === 0 && <span className="muted">No print</span>}
-          {prints.map(([p, id]) => {
-            const d = catalog.designs.find((x) => x.id === id);
+          {prints.map(([p, choice]) => {
+            const d = catalog.designs.find((x) => x.id === choice.designId);
             return (
               d && (
                 <span key={p} className="cart-print">
                   <img src={designImageUrl(d)} alt="" />
-                  {PLACEMENT_BY_ID[p].label}: {d.name}
+                  {PLACEMENT_BY_ID[p].label}: {d.name} ({choice.size})
                 </span>
               )
             );

@@ -3,7 +3,8 @@ import { urlToDataUrl } from '../lib/download';
 import type { Catalog, CatalogKind, Design, ShirtCode, ShirtColor, StockRow } from '../types';
 import { designImageUrl } from './designImage';
 
-type Parser<K extends CatalogKind> = (text: string) => Catalog[K];
+type CsvKind = Exclude<CatalogKind, 'settings'>;
+type Parser<K extends CsvKind> = (text: string) => Catalog[K];
 
 export const parseDesigns: Parser<'designs'> = (text) =>
   parseCsv(text)
@@ -11,7 +12,7 @@ export const parseDesigns: Parser<'designs'> = (text) =>
     .map((r) => ({
       id: r.id,
       name: r.name || r.id,
-      prices: {
+      costs: {
         small: numberOrNull(r.small_price),
         medium: numberOrNull(r.medium_price),
         large: numberOrNull(r.large_price),
@@ -30,7 +31,6 @@ export const parseCodes: Parser<'codes'> = (text) =>
       color: r.color,
       gsm: Number(r.gsm) || 0,
       inStock: Number(r.in_stock) || 0,
-      price: numberOrNull(r.price),
     }));
 
 export const parseColors: Parser<'colors'> = (text) =>
@@ -53,7 +53,9 @@ export const parseStock: Parser<'stock'> = (text) =>
       avgCost: Number(r.avg_cost) || 0,
     }));
 
-export const PARSERS: { [K in CatalogKind]: Parser<K> } = {
+export type { CsvKind };
+
+export const PARSERS: { [K in CsvKind]: Parser<K> } = {
   designs: parseDesigns,
   codes: parseCodes,
   colors: parseColors,
@@ -66,9 +68,9 @@ export async function designsToCsv(designs: Design[]): Promise<string> {
     designs.map(async (d) => [
       d.id,
       d.name,
-      d.prices.small,
-      d.prices.medium,
-      d.prices.large,
+      d.costs.small,
+      d.costs.medium,
+      d.costs.large,
       d.imageFile,
       d.imageData ?? (await urlToDataUrl(designImageUrl(d)).catch(() => '')),
     ]),
@@ -81,7 +83,7 @@ export async function designsToCsv(designs: Design[]): Promise<string> {
 
 export const codesToCsv = (codes: ShirtCode[]) =>
   toCsv(
-    ['code', 'type', 'collar', 'color', 'gsm', 'in_stock', 'price'],
+    ['code', 'type', 'collar', 'color', 'gsm', 'in_stock'],
     codes.map((c) => [
       c.code,
       c.type,
@@ -89,7 +91,6 @@ export const codesToCsv = (codes: ShirtCode[]) =>
       c.color,
       c.gsm,
       c.inStock,
-      c.price,
     ]),
   );
 

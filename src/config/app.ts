@@ -1,8 +1,11 @@
 export const APP_NAME = 'VIKINGS';
 export const CURRENCY = 'Rs.';
 
-/** Price of a blank shirt when the codes CSV has no `price` value for it. */
-export const DEFAULT_BLANK_PRICE = 1200;
+/** Blank-shirt cost used only when a code has no average cost in the stock CSV. */
+export const FALLBACK_BLANK_COST = 750;
+
+/** Used when `public/data/settings.json` is missing. Mirrors the POS defaults. */
+export const DEFAULT_PRICING = { margin: 0.3, packing: 150, power: 28, roundTo: 50 };
 
 /** WhatsApp number (country code, digits only) that receives orders. Empty = copy order text only. */
 export const WHATSAPP_NUMBER = '';

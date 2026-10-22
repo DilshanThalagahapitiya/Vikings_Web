@@ -1,12 +1,12 @@
 import { create } from 'zustand';
-import type { Catalog, CatalogKind } from '../types';
+import type { Catalog, PricingSettings } from '../types';
 import {
   clearLocalOverride,
   loadLocalOverride,
   loadPublishedCatalog,
   saveLocalOverride,
 } from '../services/catalogApi';
-import { PARSERS } from '../services/catalogParsers';
+import { PARSERS, type CsvKind } from '../services/catalogParsers';
 
 interface CatalogState {
   catalog: Catalog | null;
@@ -15,7 +15,8 @@ interface CatalogState {
   /** `local` = admin-imported data that only exists in this browser. */
   source: 'published' | 'local';
   load: () => Promise<void>;
-  importCsv: (kind: CatalogKind, text: string) => Promise<number>;
+  importCsv: (kind: CsvKind, text: string) => Promise<number>;
+  saveSettings: (settings: PricingSettings) => Promise<void>;
   resetToPublished: () => Promise<void>;
 }
 
@@ -44,6 +45,13 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
     await saveLocalOverride(next);
     set({ catalog: next, source: 'local', status: 'ready' });
     return rows.length;
+  },
+
+  async saveSettings(settings) {
+    const current = get().catalog ?? (await loadPublishedCatalog());
+    const next = { ...current, settings };
+    await saveLocalOverride(next);
+    set({ catalog: next, source: 'local', status: 'ready' });
   },
 
   async resetToPublished() {

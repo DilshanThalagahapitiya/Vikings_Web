@@ -36,6 +36,6 @@ export const useCartStore = create<CartState>()(
       remove: (id) => set((s) => ({ items: s.items.filter((i) => i.id !== id) })),
       clear: () => set({ items: [] }),
     }),
-    { name: 'vikings-cart' },
+    { name: 'vikings-cart-v2' },
   ),
 );

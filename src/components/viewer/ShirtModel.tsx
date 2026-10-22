@@ -3,12 +3,13 @@ import * as THREE from 'three';
 import { PLACEMENT_BY_ID } from '../../config/placements';
 import { SIZE_SCALE } from '../../config/app';
 import { buildShirt } from '../../lib/shirtGeometry';
-import type { PlacementId, ShirtStyle } from '../../types';
+import type { PlacementId, PrintSize, ShirtStyle } from '../../types';
 import { getFabricBump } from './fabricTexture';
 import { PrintDecal } from './PrintDecal';
 
 export interface ShirtPrint {
   placement: PlacementId;
+  size: PrintSize;
   imageUrl: string;
 }
 
@@ -81,6 +82,7 @@ export function ShirtModel({ style, size, color, trimColor, prints }: Props) {
               body={body}
               dims={geo.dims}
               placement={PLACEMENT_BY_ID[p.placement]}
+              printSize={p.size}
               imageUrl={p.imageUrl}
             />
           </Suspense>

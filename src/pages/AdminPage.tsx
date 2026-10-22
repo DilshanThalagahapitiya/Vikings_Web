@@ -1,4 +1,5 @@
 import { CsvManager } from '../components/admin/CsvManager';
+import { PricingSettingsCard } from '../components/admin/PricingSettingsCard';
 import { Button } from '../components/ui/Button';
 import { Notice } from '../components/ui/Notice';
 import { codesToCsv, colorsToCsv, designsToCsv, stockToCsv } from '../services/catalogParsers';
@@ -7,7 +8,7 @@ import { useCatalogStore } from '../store/catalogStore';
 const PREVIEW_ROWS = 6;
 
 export function AdminPage() {
-  const { catalog, source, importCsv, resetToPublished } = useCatalogStore();
+  const { catalog, source, importCsv, saveSettings, resetToPublished } = useCatalogStore();
   if (!catalog) return null;
 
   return (
@@ -25,28 +26,30 @@ export function AdminPage() {
         ) : (
           <>
             Showing the published data from <code>public/data/*.csv</code>. Imports here are a private preview – to
-            update the live site, replace those files and push.
+            update the live site, replace those files (and settings.json) and push.
           </>
         )}
       </Notice>
 
+      <PricingSettingsCard key={JSON.stringify(catalog.settings)} settings={catalog.settings} onSave={saveSettings} />
+
       <CsvManager
         title="Designs"
-        description="Designs, print prices per size and images (image_data = base64 data URL)."
+        description="Designs, print COST per size (blank = size not offered) and images (image_data = base64 data URL). Same file as the POS export."
         columns="id, name, small_price, medium_price, large_price, image_file, image_data"
         filename="VIKINGS_designs"
         count={catalog.designs.length}
-        previewHead={['ID', 'Name', 'Small', 'Medium', 'Large', 'Image']}
+        previewHead={['ID', 'Name', 'Small cost', 'Medium cost', 'Large cost', 'Image']}
         preview={catalog.designs
           .slice(0, PREVIEW_ROWS)
-          .map((d) => [d.id, d.name, d.prices.small, d.prices.medium, d.prices.large, d.imageData ? 'embedded' : d.imageFile].map((v) => String(v ?? '–')))}
+          .map((d) => [d.id, d.name, d.costs.small, d.costs.medium, d.costs.large, d.imageData ? 'embedded' : d.imageFile].map((v) => String(v ?? '–')))}
         onImport={(t) => importCsv('designs', t)}
         onExport={() => designsToCsv(catalog.designs)}
       />
       <CsvManager
         title="T-shirt codes"
-        description="Every sellable shirt: type, collar, colour, GSM. Optional price column sets the blank shirt price."
-        columns="code, type, collar, color, gsm, in_stock, price (optional)"
+        description="Every sellable shirt: type, collar, colour, GSM. Shirt cost comes from the stock file."
+        columns="code, type, collar, color, gsm, in_stock"
         filename="VIKINGS_codes"
         count={catalog.codes.length}
         previewHead={['Code', 'Type', 'Collar', 'Colour', 'GSM', 'Stock']}
@@ -71,7 +74,7 @@ export function AdminPage() {
       />
       <CsvManager
         title="Stock"
-        description="Stock per shirt code and size. Sizes with 0 are shown as sold out."
+        description="Stock per shirt code and size. avg_cost is the blank shirt cost used for pricing. Sizes with 0 are sold out."
         columns="code, size, in_stock, avg_cost"
         filename="VIKINGS_stock"
         count={catalog.stock.length}

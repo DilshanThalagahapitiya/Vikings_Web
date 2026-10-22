@@ -1,5 +1,8 @@
 import { PLACEMENTS, PLACEMENT_BY_ID, PRINT_SIZE_LABEL } from '../../config/placements';
 import { designsForPlacement } from '../../services/catalogSelectors';
+import { defaultSizeFor, printPrice, sizesAt } from '../../services/pricing';
+import { formatMoney } from '../../lib/format';
+import { OptionChip } from '../ui/OptionChip';
 import { useDesignerStore } from '../../store/designerStore';
 import { useDesignerSelection } from '../../hooks/useDesignerSelection';
 import { designImageUrl } from '../../services/designImage';
@@ -16,9 +19,11 @@ interface Props {
 /** Pick a print position, then a design for it. */
 export function PrintPlacement({ onShowSide }: Props) {
   const { catalog, prints } = useDesignerSelection();
-  const { activePlacement, setActivePlacement, setPrint } = useDesignerStore();
+  const { activePlacement, setActivePlacement, setPrint, setPrintSize } = useDesignerStore();
   const placement = PLACEMENT_BY_ID[activePlacement];
   const designs = designsForPlacement(catalog.designs, activePlacement);
+  const choice = prints[activePlacement];
+  const chosenDesign = catalog.designs.find((d) => d.id === choice?.designId);
 
   const activate = (id: PlacementId) => {
     setActivePlacement(id);
@@ -29,7 +34,7 @@ export function PrintPlacement({ onShowSide }: Props) {
     <StepSection step={2} title="Add prints" aside="Pick a position, then a design">
       <div className="placements">
         {PLACEMENTS.map((p) => {
-          const design = catalog.designs.find((d) => d.id === prints[p.id]);
+          const design = catalog.designs.find((d) => d.id === prints[p.id]?.designId);
           return (
             <button
               key={p.id}
@@ -41,7 +46,7 @@ export function PrintPlacement({ onShowSide }: Props) {
                 {design ? <img src={designImageUrl(design)} alt="" /> : <span>+</span>}
               </span>
               <span className="placement__label">{p.label}</span>
-              <span className="placement__sub">{design ? design.name : PRINT_SIZE_LABEL[p.printSize]}</span>
+              <span className="placement__sub">{design ? `${design.name} · ${PRINT_SIZE_LABEL[prints[p.id]!.size][0]}` : 'No print'}</span>
             </button>
           );
         })}
@@ -49,18 +54,37 @@ export function PrintPlacement({ onShowSide }: Props) {
 
       <div className="placement-head">
         <strong>{placement.label}</strong>
-        {prints[activePlacement] && (
+        {choice && (
           <Button variant="ghost" size="sm" onClick={() => setPrint(activePlacement, null)}>
             Remove print
           </Button>
         )}
       </div>
+      {chosenDesign && choice && (
+        <div className="field">
+          <span className="field__label">Print size</span>
+          <div className="chips">
+            {sizesAt(chosenDesign, activePlacement).map((s) => (
+              <OptionChip
+                key={s}
+                selected={s === choice.size}
+                hint={formatMoney(printPrice(catalog, chosenDesign, s))}
+                onClick={() => setPrintSize(activePlacement, s)}
+              >
+                {PRINT_SIZE_LABEL[s]}
+              </OptionChip>
+            ))}
+          </div>
+        </div>
+      )}
       <DesignGrid
         designs={designs}
-        printSize={placement.printSize}
-        selectedId={prints[activePlacement]}
+        sizes={placement.sizes}
+        selectedId={choice?.designId}
         onSelect={(id) => {
-          setPrint(activePlacement, id);
+          const design = catalog.designs.find((d) => d.id === id)!;
+          const size = defaultSizeFor(design, activePlacement);
+          if (size) setPrint(activePlacement, { designId: id, size });
           onShowSide(placement.side);
         }}
       />
